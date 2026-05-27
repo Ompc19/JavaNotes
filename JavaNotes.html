@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaNotes — FAANG Study Notebook</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+  :root {
+    --bg: #0e0f11;
+    --bg2: #15171a;
+    --bg3: #1c1f24;
+    --bg4: #22262d;
+    --border: #2a2f38;
+    --border2: #353c48;
+    --text: #e8eaf0;
+    --text2: #9aa0ae;
+    --text3: #5c6370;
+    --accent: #f4a44a;
+    --accent2: #e8834a;
+    --green: #5ec98f;
+    --blue: #5ba4f5;
+    --red: #f06a6a;
+    --purple: #a78bfa;
+    --tag-bg: #1e2530;
+    --font-display: 'Fraunces', serif;
+    --font-ui: 'Instrument Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    overflow: hidden;
+  }
+
+  /* ─── LAYOUT ─── */
+  .app { display: flex; height: 100vh; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.25s ease;
+  }
+
+  .logo {
+    padding: 22px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: #0e0f11;
+    flex-shrink: 0;
+  }
+  .logo-text {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+  .logo-text span { color: var(--accent); font-style: italic; }
+
+  .search-wrap {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px 7px 32px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: var(--font-ui);
+    outline: none;
+    position: relative;
+  }
+  .search-input::placeholder { color: var(--text3); }
+  .search-input:focus { border-color: var(--border2); }
+  .search-wrap { position: relative; }
+  .search-icon {
+    position: absolute;
+    left: 24px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  .section-label {
+    padding: 10px 16px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .topic-list { flex: 1; overflow-y: auto; padding: 4px 8px 8px; }
+  .topic-list::-webkit-scrollbar { width: 3px; }
+  .topic-list::-webkit-scrollbar-track { background: transparent; }
+  .topic-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+  .topic-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 1px;
+    transition: background 0.12s;
+    position: relative;
+  }
+  .topic-item:hover { background: var(--bg3); }
+  .topic-item.active { background: var(--bg4); }
+  .topic-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20%; bottom: 20%;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+  .topic-icon {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .topic-name {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .topic-item.active .topic-name { color: var(--text); font-weight: 500; }
+  .note-badge {
+    font-size: 10px;
+    color: var(--text3);
+    font-family: var(--font-mono);
+    flex-shrink: 0;
+  }
+  .has-note .note-badge { color: var(--green); }
+
+  .add-btn {
+    margin: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border: 1px dashed var(--border2);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text3);
+    font-size: 13px;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    width: calc(100% - 16px);
+    transition: all 0.15s;
+  }
+  .add-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(244,164,74,0.05); }
+
+  /* ─── MAIN EDITOR ─── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--bg);
+  }
+
+  .editor-topbar {
+    padding: 0 24px;
+    height: 58px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  .note-title-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    outline: none;
+    min-width: 0;
+  }
+  .note-title-input::placeholder { color: var(--text3); }
+
+  .topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+  .mode-toggle {
+    display: flex;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 3px;
+    gap: 2px;
+  }
+  .mode-btn {
+    padding: 5px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text3);
+    font-size: 12px;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .mode-btn.active { background: var(--bg4); color: var(--text); }
+
+  .action-btn {
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    font-size: 12px;
+    font-family: var(--font-ui);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .action-btn:hover { border-color: var(--border2); color: var(--text); }
+  .action-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0e0f11;
+    font-weight: 600;
+  }
+  .action-btn.primary:hover { background: var(--accent2); }
+
+  /* ─── TOOLBAR ─── */
+  .toolbar {
+    padding: 8px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+  .tb-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+  .tb-btn {
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text2);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: all 0.12s;
+    white-space: nowrap;
+  }
+  .tb-btn:hover { background: var(--bg4); border-color: var(--border); color: var(--text); }
+  .tb-label {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--font-ui);
+    padding: 0 4px;
+  }
+
+  /* ─── EDITOR AREA ─── */
+  .editor-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  .write-pane, .preview-pane {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 32px;
+  }
+  .write-pane::-webkit-scrollbar,
+  .preview-pane::-webkit-scrollbar { width: 4px; }
+  .write-pane::-webkit-scrollbar-thumb,
+  .preview-pane::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .write-pane { border-right: 1px solid var(--border); }
+
+  .note-editor {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    background: transparent;
+    border: none;
+    resize: none;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text);
+    outline: none;
+    tab-size: 2;
+  }
+  .note-editor::placeholder { color: var(--text3); font-family: var(--font-mono); }
+
+  /* ─── PREVIEW ─── */
+  .preview-pane { background: var(--bg); }
+  .preview-content { max-width: 680px; }
+  .preview-content h1 { font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--text); margin-bottom: 16px; line-height: 1.3; }
+  .preview-content h2 { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--text); margin: 24px 0 10px; }
+  .preview-content h3 { font-size: 15px; font-weight: 600; color: var(--accent); margin: 20px 0 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .preview-content p { font-size: 14px; line-height: 1.8; color: var(--text2); margin-bottom: 12px; }
+  .preview-content ul, .preview-content ol { padding-left: 20px; margin-bottom: 12px; }
+  .preview-content li { font-size: 14px; line-height: 1.8; color: var(--text2); margin-bottom: 4px; }
+  .preview-content code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--accent);
+  }
+  .preview-content pre {
+    background: #1a1d23;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+  }
+  .preview-content pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: inherit;
+  }
+  .preview-content blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    margin: 16px 0;
+    color: var(--text3);
+    font-style: italic;
+  }
+  .preview-content hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+  }
+  .preview-content strong { color: var(--text); font-weight: 600; }
+  .preview-content em { color: var(--purple); }
+  .highlight-box {
+    background: rgba(244,164,74,0.08);
+    border: 1px solid rgba(244,164,74,0.25);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+  }
+
+  /* ─── STATUS BAR ─── */
+  .statusbar {
+    height: 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    background: var(--bg2);
+    flex-shrink: 0;
+  }
+  .status-item {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--font-mono);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .status-spacer { flex: 1; }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--text3);
+  }
+  .empty-icon {
+    font-family: var(--font-display);
+    font-size: 48px;
+    color: var(--border2);
+    font-style: italic;
+  }
+  .empty-state p { font-size: 14px; }
+
+  /* ─── NEW TOPIC MODAL ─── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    padding: 24px;
+    width: 380px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+  }
+  .modal h3 { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 16px; }
+  .modal label { font-size: 12px; color: var(--text3); display: block; margin-bottom: 6px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+  .modal input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: var(--font-ui);
+    outline: none;
+    margin-bottom: 14px;
+  }
+  .modal input:focus { border-color: var(--accent); }
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .icon-option {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    transition: all 0.12s;
+  }
+  .icon-option:hover { border-color: var(--border2); transform: scale(1.1); }
+  .icon-option.selected { border-color: var(--accent); background: rgba(244,164,74,0.1); }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 200;
+    font-family: var(--font-ui);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+
+  /* ─── SCROLLBAR GLOBAL ─── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">J</div>
+      <div class="logo-text">Java<span>Notes</span></div>
+    </div>
+
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input class="search-input" id="searchInput" placeholder="Search notes..." oninput="filterTopics(this.value)" />
+    </div>
+
+    <div class="section-label">Topics</div>
+    <div class="topic-list" id="topicList"></div>
+
+    <button class="add-btn" onclick="openModal()">
+      <span style="font-size:16px">+</span> New Topic
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="editor-topbar">
+      <input class="note-title-input" id="noteTitle" placeholder="Note title..." oninput="onTitleChange()" />
+      <div class="topbar-actions">
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="btnWrite" onclick="setMode('write')">Write</button>
+          <button class="mode-btn" id="btnSplit" onclick="setMode('split')">Split</button>
+          <button class="mode-btn" id="btnPreview" onclick="setMode('preview')">Preview</button>
+        </div>
+        <button class="action-btn" onclick="exportNote()">Export</button>
+        <button class="action-btn primary" onclick="saveNote()">Save</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <span class="tb-label">Insert:</span>
+      <button class="tb-btn" onclick="ins('## ')">H2</button>
+      <button class="tb-btn" onclick="ins('### ')">H3</button>
+      <div class="tb-sep"></div>
+      <button class="tb-btn" onclick="ins('**', '**')"><b>B</b></button>
+      <button class="tb-btn" onclick="ins('*', '*')"><i>I</i></button>
+      <button class="tb-btn" onclick="ins('`', '`')">code</button>
+      <div class="tb-sep"></div>
+      <button class="tb-btn" onclick="insBlock('```java\n', '\n```')">Java block</button>
+      <button class="tb-btn" onclick="insLine('- ')">• list</button>
+      <button class="tb-btn" onclick="insLine('> ')">quote</button>
+      <button class="tb-btn" onclick="insLine('---')">divider</button>
+      <div class="tb-sep"></div>
+      <button class="tb-btn" onclick="ins('→ ')">→</button>
+      <button class="tb-btn" onclick="ins('✓ ')">✓</button>
+      <button class="tb-btn" onclick="ins('⚠ ')">⚠</button>
+      <button class="tb-btn" onclick="ins('★ ')">★</button>
+    </div>
+
+    <div class="editor-body" id="editorBody">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">{ }</div>
+        <p>Select a topic to start writing</p>
+      </div>
+      <div class="write-pane" id="writePane" style="display:none">
+        <textarea class="note-editor" id="noteEditor" placeholder="Start writing...&#10;&#10;Use ## for headings, **bold**, *italic*, `code`&#10;Use ```java code blocks for snippets&#10;&#10;# OOP Concepts&#10;**Inheritance** lets a class extend another.&#10;&#10;```java&#10;class Dog extends Animal { ... }&#10;```" oninput="onEditorChange()"></textarea>
+      </div>
+      <div class="preview-pane" id="previewPane" style="display:none">
+        <div class="preview-content" id="previewContent"></div>
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <div class="status-item">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Ready</span>
+      </div>
+      <div class="status-item" id="wordCountEl">0 words</div>
+      <div class="status-spacer"></div>
+      <div class="status-item" id="topicCountEl">0 topics</div>
+      <div class="status-item">JavaNotes v1.0</div>
+    </div>
+  </main>
+</div>
+
+<!-- NEW TOPIC MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h3>New Topic</h3>
+    <label>Topic Name</label>
+    <input type="text" id="newTopicName" placeholder="e.g. Binary Trees, DP Patterns..." />
+    <label>Icon</label>
+    <div class="icon-grid" id="iconGrid"></div>
+    <div class="modal-actions">
+      <button class="action-btn" onclick="closeModal()">Cancel</button>
+      <button class="action-btn primary" onclick="addTopic()">Create Topic</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><div class="toast-dot"></div><span id="toastMsg">Saved!</span></div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────
+const ICONS = ['☕','🔢','🌲','⚡','🔁','🗂️','🔐','📐','🧵','🔍','📦','🛠️','💡','🧪','📊','🎯'];
+let selectedIcon = ICONS[0];
+
+const defaultTopics = [
+  { id: 1, name: 'OOP Concepts', icon: '🏗️', note: `# OOP Concepts\n\nObject-Oriented Programming is the backbone of Java. Four core pillars:\n\n### 1. Encapsulation\nHiding internal state and requiring all interaction to be performed through an object's methods.\n\n\`\`\`java\npublic class BankAccount {\n    private double balance; // hidden\n    public double getBalance() { return balance; }\n    public void deposit(double amount) { balance += amount; }\n}\n\`\`\`\n\n### 2. Inheritance\nChild class extends parent, inheriting fields and methods.\n\n\`\`\`java\nclass Animal {\n    String name;\n    void speak() { System.out.println("..."); }\n}\nclass Dog extends Animal {\n    void speak() { System.out.println("Woof!"); }\n}\n\`\`\`\n\n### 3. Polymorphism\nOne interface, many implementations.\n\n\`\`\`java\nAnimal a = new Dog(); // runtime polymorphism\na.speak(); // prints "Woof!"\n\`\`\`\n\n### 4. Abstraction\nHiding complexity. Use abstract classes or interfaces.\n\n\`\`\`java\ninterface Shape {\n    double area();\n}\nclass Circle implements Shape {\n    double r;\n    public double area() { return Math.PI * r * r; }\n}\n\`\`\`\n\n> **FAANG Tip:** Always mention SOLID principles when discussing OOP in interviews!` },
+  { id: 2, name: 'Collections', icon: '🗂️', note: `# Java Collections Framework\n\n### Core Interfaces\n- **List** → ordered, allows duplicates\n- **Set** → no duplicates\n- **Map** → key-value pairs\n- **Queue/Deque** → FIFO / double-ended\n\n---\n\n### ArrayList vs LinkedList\n\n\`\`\`java\n// ArrayList — backed by dynamic array\nArrayList<Integer> list = new ArrayList<>();\nlist.add(10);       // O(1) amortized\nlist.get(0);        // O(1) — random access\nlist.remove(0);     // O(n) — shifts elements\n\n// LinkedList — doubly linked\nLinkedList<Integer> ll = new LinkedList<>();\nll.addFirst(1);     // O(1)\nll.addLast(2);      // O(1)\nll.get(5);          // O(n) — no random access\n\`\`\`\n\n### HashMap Internals\n\`\`\`java\nHashMap<String, Integer> map = new HashMap<>();\nmap.put("apple", 3);   // O(1) avg\nmap.get("apple");      // O(1) avg\nmap.containsKey("x");  // O(1) avg\n\`\`\`\n\n★ Default load factor: **0.75**. Rehashing at 75% capacity.\n★ In Java 8+: buckets use **TreeNode** (red-black tree) when size > 8.\n\n### TreeMap vs HashMap\n- **HashMap** → O(1) ops, unordered\n- **TreeMap** → O(log n) ops, **sorted by key**\n\n### PriorityQueue (Min-Heap)\n\`\`\`java\nPriorityQueue<Integer> pq = new PriorityQueue<>();\npq.offer(5); pq.offer(1); pq.offer(3);\npq.poll(); // returns 1 (min)\n\`\`\`` },
+  { id: 3, name: 'Recursion', icon: '🔁', note: `# Recursion & Backtracking\n\n### Recursion Template\n\`\`\`java\nvoid solve(int n) {\n    // base case\n    if (n <= 0) return;\n    // work\n    System.out.println(n);\n    // recurse\n    solve(n - 1);\n}\n\`\`\`\n\n### Fibonacci (Memoized)\n\`\`\`java\nMap<Integer,Long> memo = new HashMap<>();\nlong fib(int n) {\n    if (n <= 1) return n;\n    if (memo.containsKey(n)) return memo.get(n);\n    long res = fib(n-1) + fib(n-2);\n    memo.put(n, res);\n    return res;\n}\n\`\`\`\n\n### Backtracking Template\n\`\`\`java\nvoid backtrack(List<Integer> current, int[] nums) {\n    if (isComplete(current)) {\n        results.add(new ArrayList<>(current));\n        return;\n    }\n    for (int num : nums) {\n        if (isValid(current, num)) {\n            current.add(num);          // choose\n            backtrack(current, nums);   // explore\n            current.remove(current.size()-1); // undo\n        }\n    }\n}\n\`\`\`\n\n> ⚠ **Stack overflow** risk with deep recursion. Convert to iterative with explicit stack if needed.\n\n→ Key patterns: Subsets, Permutations, N-Queens, Sudoku Solver` },
+  { id: 4, name: 'Sorting Algos', icon: '📊', note: `# Sorting Algorithms\n\n| Algorithm | Best | Avg | Worst | Space | Stable |\n|-----------|------|-----|-------|-------|--------|\n| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes |\n| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No |\n| Heap Sort | O(n log n) | O(n log n) | O(n log n) | O(1) | No |\n| Tim Sort | O(n) | O(n log n) | O(n log n) | O(n) | Yes |\n\n### Merge Sort\n\`\`\`java\nvoid mergeSort(int[] arr, int l, int r) {\n    if (l >= r) return;\n    int mid = (l + r) / 2;\n    mergeSort(arr, l, mid);\n    mergeSort(arr, mid+1, r);\n    merge(arr, l, mid, r);\n}\n\`\`\`\n\n### Quick Sort\n\`\`\`java\nvoid quickSort(int[] arr, int lo, int hi) {\n    if (lo >= hi) return;\n    int p = partition(arr, lo, hi);\n    quickSort(arr, lo, p-1);\n    quickSort(arr, p+1, hi);\n}\n\`\`\`\n\n★ Java's **Arrays.sort()** uses Dual-Pivot Quicksort for primitives, TimSort for objects.` },
+  { id: 5, name: 'Trees & Graphs', icon: '🌲', note: `# Trees & Graphs\n\n### Binary Tree Traversals\n\`\`\`java\n// Inorder: Left → Root → Right\nvoid inorder(TreeNode root) {\n    if (root == null) return;\n    inorder(root.left);\n    visit(root.val);\n    inorder(root.right);\n}\n\n// BFS (Level Order)\nvoid bfs(TreeNode root) {\n    Queue<TreeNode> q = new LinkedList<>();\n    q.offer(root);\n    while (!q.isEmpty()) {\n        TreeNode node = q.poll();\n        visit(node.val);\n        if (node.left != null) q.offer(node.left);\n        if (node.right != null) q.offer(node.right);\n    }\n}\n\`\`\`\n\n### Graph BFS\n\`\`\`java\nvoid bfsGraph(int start, List<List<Integer>> adj) {\n    boolean[] visited = new boolean[n];\n    Queue<Integer> q = new LinkedList<>();\n    q.offer(start);\n    visited[start] = true;\n    while (!q.isEmpty()) {\n        int node = q.poll();\n        for (int nb : adj.get(node)) {\n            if (!visited[nb]) {\n                visited[nb] = true;\n                q.offer(nb);\n            }\n        }\n    }\n}\n\`\`\`\n\n→ BST property: left < root < right\n→ AVL tree: balanced BST, height diff ≤ 1\n→ Trie: for string prefix problems` },
+  { id: 6, name: 'Dynamic Programming', icon: '⚡', note: `# Dynamic Programming\n\n### DP Steps\n1. **Define** the state (what does dp[i] mean?)\n2. **Transition** (how do states relate?)\n3. **Base case** (starting values)\n4. **Order** (which direction to fill?)\n\n### Classic: 0/1 Knapsack\n\`\`\`java\nint knapsack(int[] w, int[] v, int W) {\n    int n = w.length;\n    int[][] dp = new int[n+1][W+1];\n    for (int i = 1; i <= n; i++) {\n        for (int j = 0; j <= W; j++) {\n            dp[i][j] = dp[i-1][j]; // skip item\n            if (w[i-1] <= j)\n                dp[i][j] = Math.max(dp[i][j],\n                    dp[i-1][j-w[i-1]] + v[i-1]);\n        }\n    }\n    return dp[n][W];\n}\n\`\`\`\n\n### LCS (Longest Common Subsequence)\n\`\`\`java\nint lcs(String a, String b) {\n    int m = a.length(), n = b.length();\n    int[][] dp = new int[m+1][n+1];\n    for (int i = 1; i <= m; i++)\n        for (int j = 1; j <= n; j++)\n            dp[i][j] = a.charAt(i-1)==b.charAt(j-1)\n                ? dp[i-1][j-1]+1\n                : Math.max(dp[i-1][j], dp[i][j-1]);\n    return dp[m][n];\n}\n\`\`\`\n\n★ Common patterns: Kadane's, coin change, edit distance, matrix chain` },
+  { id: 7, name: 'System Design', icon: '🏛️', note: `# System Design Notes\n\n### Key Concepts for FAANG\n\n### Scalability\n- **Vertical scaling** → bigger machine\n- **Horizontal scaling** → more machines + load balancer\n\n### CAP Theorem\n- **C**onsistency — every read sees latest write\n- **A**vailability — every request gets a response\n- **P**artition tolerance — works despite network splits\n\n> You can only guarantee 2 of 3. Most distributed systems choose **AP** or **CP**.\n\n### SQL vs NoSQL\n| | SQL | NoSQL |\n|--|-----|-------|\n| Schema | Fixed | Flexible |\n| Scaling | Vertical | Horizontal |\n| Joins | Yes | Limited |\n| Examples | MySQL, Postgres | MongoDB, Cassandra |\n\n### Caching Strategies\n- **Cache-aside** (Lazy loading) → app checks cache first\n- **Write-through** → write to cache + DB together\n- **Write-back** → write cache, async flush to DB\n\n### Common Design Questions\n- Design URL Shortener (TinyURL)\n- Design Twitter / Instagram Feed\n- Design a Rate Limiter\n- Design a Distributed Cache (Redis)\n- Design Notification System\n\n→ Always start with: Requirements → Estimations → High-level design → Deep dive` },
+  { id: 8, name: 'String Problems', icon: '🔤', note: `# String Problems\n\n### Key Techniques\n\n**Sliding Window** — for substrings\n\`\`\`java\n// Longest substring without repeating chars\nint lengthOfLongestSubstring(String s) {\n    Map<Character,Integer> map = new HashMap<>();\n    int max = 0, left = 0;\n    for (int right = 0; right < s.length(); right++) {\n        char c = s.charAt(right);\n        if (map.containsKey(c))\n            left = Math.max(left, map.get(c)+1);\n        map.put(c, right);\n        max = Math.max(max, right-left+1);\n    }\n    return max;\n}\n\`\`\`\n\n**Two Pointers** — for palindromes, reversals\n\`\`\`java\nboolean isPalindrome(String s) {\n    int l = 0, r = s.length()-1;\n    while (l < r) {\n        if (s.charAt(l++) != s.charAt(r--)) return false;\n    }\n    return true;\n}\n\`\`\`\n\n**StringBuilder for O(n) concatenation**\n\`\`\`java\nStringBuilder sb = new StringBuilder();\nfor (char c : chars) sb.append(c);\nString result = sb.toString();\n\`\`\`\n\n→ String is immutable in Java\n→ charAt() is O(1)\n→ substring() is O(n) in Java 7+` },
+];
+
+let topics = [];
+let activeId = null;
+let currentMode = 'write';
+let saveTimer;
+
+// ─── INIT ────────────────────────────────────────────
+try {
+  const saved = localStorage.getItem('javaNotesTopics');
+  topics = saved ? JSON.parse(saved) : defaultTopics;
+} catch(e) { topics = defaultTopics; }
+
+// ─── RENDER TOPIC LIST ───────────────────────────────
+function renderTopics(filter = '') {
+  const list = document.getElementById('topicList');
+  list.innerHTML = '';
+  const filtered = topics.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()) ||
+    (t.note && t.note.toLowerCase().includes(filter.toLowerCase())));
+
+  filtered.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'topic-item' + (t.id === activeId ? ' active' : '') + (t.note ? ' has-note' : '');
+    div.innerHTML = `
+      <div class="topic-icon">${t.icon}</div>
+      <span class="topic-name">${t.name}</span>
+      <span class="note-badge">${t.note ? countWords(t.note) + 'w' : '—'}</span>
+    `;
+    div.onclick = () => selectTopic(t.id);
+    list.appendChild(div);
+  });
+
+  document.getElementById('topicCountEl').textContent = topics.length + ' topic' + (topics.length !== 1 ? 's' : '');
+}
+
+function countWords(text) {
+  return text.trim() ? text.trim().split(/\s+/).length : 0;
+}
+
+function filterTopics(val) { renderTopics(val); }
+
+// ─── SELECT TOPIC ────────────────────────────────────
+function selectTopic(id) {
+  saveCurrentNote();
+  activeId = id;
+  const t = topics.find(x => x.id === id);
+  if (!t) return;
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('noteTitle').value = t.name;
+  document.getElementById('noteEditor').value = t.note || '';
+
+  applyMode();
+  updateWordCount();
+  renderTopics();
+
+  if (currentMode === 'preview' || currentMode === 'split') renderPreview();
+}
+
+// ─── SAVE ────────────────────────────────────────────
+function saveCurrentNote() {
+  if (!activeId) return;
+  const t = topics.find(x => x.id === activeId);
+  if (t) {
+    t.note = document.getElementById('noteEditor').value;
+    t.name = document.getElementById('noteTitle').value || t.name;
+  }
+  persistTopics();
+}
+
+function saveNote() {
+  saveCurrentNote();
+  renderTopics();
+  showToast('Note saved!');
+  setStatus('Saved');
+}
+
+function persistTopics() {
+  try { localStorage.setItem('javaNotesTopics', JSON.stringify(topics)); } catch(e) {}
+}
+
+// ─── EDITOR EVENTS ───────────────────────────────────
+function onEditorChange() {
+  updateWordCount();
+  setStatus('Editing...');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { saveCurrentNote(); renderTopics(); setStatus('Auto-saved'); }, 1200);
+  if (currentMode === 'split') renderPreview();
+}
+
+function onTitleChange() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { saveCurrentNote(); renderTopics(); }, 1000);
+}
+
+function updateWordCount() {
+  const text = document.getElementById('noteEditor').value;
+  const words = countWords(text);
+  document.getElementById('wordCountEl').textContent = words + ' word' + (words !== 1 ? 's' : '');
+}
+
+function setStatus(msg) {
+  document.getElementById('statusText').textContent = msg;
+}
+
+// ─── MODES ───────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  ['write','split','preview'].forEach(m => {
+    document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1))?.classList.remove('active');
+  });
+  document.getElementById('btn' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+  applyMode();
+  if (mode === 'preview' || mode === 'split') renderPreview();
+}
+
+function applyMode() {
+  const wp = document.getElementById('writePane');
+  const pp = document.getElementById('previewPane');
+  const es = document.getElementById('emptyState');
+
+  if (!activeId) {
+    wp.style.display = 'none'; pp.style.display = 'none'; es.style.display = 'flex';
+    return;
+  }
+  es.style.display = 'none';
+  if (currentMode === 'write') { wp.style.display = 'flex'; pp.style.display = 'none'; }
+  else if (currentMode === 'preview') { wp.style.display = 'none'; pp.style.display = 'flex'; }
+  else { wp.style.display = 'flex'; pp.style.display = 'flex'; }
+}
+
+// ─── MARKDOWN PREVIEW ────────────────────────────────
+function renderPreview() {
+  const raw = document.getElementById('noteEditor').value;
+  const title = document.getElementById('noteTitle').value;
+  let html = marked(raw);
+  document.getElementById('previewContent').innerHTML = `<h1>${title}</h1>` + html;
+  document.querySelectorAll('#previewContent pre code').forEach(el => hljs.highlightElement(el));
+}
+
+function marked(text) {
+  return text
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+    .replace(/```java\n([\s\S]*?)```/g, (_, code) => `<pre><code class="language-java">${escHtml(code)}</code></pre>`)
+    .replace(/```[\w]*\n([\s\S]*?)```/g, (_, code) => `<pre><code>${escHtml(code)}</code></pre>`)
+    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/^---$/gm, '<hr>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, s => `<ul>${s}</ul>`)
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^([^<\n].+)$/gm, s => s.startsWith('<') ? s : s)
+    .replace(/<\/p><p>/g, '</p>\n<p>');
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── TOOLBAR INSERTS ─────────────────────────────────
+function ins(before, after = '') {
+  const ta = document.getElementById('noteEditor');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const selected = ta.value.slice(s, e);
+  const inserted = before + selected + after;
+  ta.value = ta.value.slice(0, s) + inserted + ta.value.slice(e);
+  ta.selectionStart = s + before.length;
+  ta.selectionEnd = s + before.length + selected.length;
+  ta.focus();
+  onEditorChange();
+}
+
+function insLine(prefix) {
+  const ta = document.getElementById('noteEditor');
+  const s = ta.selectionStart;
+  const lineStart = ta.value.lastIndexOf('\n', s - 1) + 1;
+  ta.value = ta.value.slice(0, lineStart) + prefix + ta.value.slice(lineStart);
+  ta.selectionStart = ta.selectionEnd = s + prefix.length;
+  ta.focus();
+  onEditorChange();
+}
+
+function insBlock(before, after) {
+  const ta = document.getElementById('noteEditor');
+  const s = ta.selectionStart;
+  ta.value = ta.value.slice(0, s) + before + after + ta.value.slice(s);
+  ta.selectionStart = ta.selectionEnd = s + before.length;
+  ta.focus();
+  onEditorChange();
+}
+
+// ─── MODAL ───────────────────────────────────────────
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('newTopicName').value = '';
+  selectedIcon = ICONS[0];
+  buildIconGrid();
+  setTimeout(() => document.getElementById('newTopicName').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function buildIconGrid() {
+  const grid = document.getElementById('iconGrid');
+  grid.innerHTML = '';
+  ICONS.forEach(icon => {
+    const div = document.createElement('div');
+    div.className = 'icon-option' + (icon === selectedIcon ? ' selected' : '');
+    div.textContent = icon;
+    div.onclick = () => { selectedIcon = icon; buildIconGrid(); };
+    grid.appendChild(div);
+  });
+}
+
+function addTopic() {
+  const name = document.getElementById('newTopicName').value.trim();
+  if (!name) { document.getElementById('newTopicName').focus(); return; }
+  saveCurrentNote();
+  const newT = { id: Date.now(), name, icon: selectedIcon, note: '' };
+  topics.push(newT);
+  persistTopics();
+  closeModal();
+  selectTopic(newT.id);
+  showToast('Topic created!');
+}
+
+document.getElementById('newTopicName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTopic();
+  if (e.key === 'Escape') closeModal();
+});
+
+// ─── EXPORT ──────────────────────────────────────────
+function exportNote() {
+  if (!activeId) return showToast('No note selected');
+  saveCurrentNote();
+  const t = topics.find(x => x.id === activeId);
+  const content = `# ${t.name}\n\n${t.note}`;
+  const blob = new Blob([content], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = t.name.replace(/\s+/g, '_') + '.md';
+  a.click();
+  showToast('Exported as Markdown!');
+}
+
+// ─── TOAST ───────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ─── KEYBOARD SHORTCUTS ──────────────────────────────
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveNote(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openModal(); }
+});
+
+// ─── START ───────────────────────────────────────────
+buildIconGrid();
+renderTopics();
+selectTopic(topics[0]?.id);
+</script>
+</body>
+</html>
